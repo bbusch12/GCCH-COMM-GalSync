@@ -1,0 +1,17 @@
+{
+  "analyzers": {
+    "core": {
+      "enabled": true,
+      "rules": {
+        "no-hardcoded-env-urls": {
+          "level": "off",
+          "_comment": "This workload deliberately references two clouds. Firewall FQDN allow-lists and cross-cloud service endpoints must be literal; environment() only ever returns the deploying cloud."
+        },
+        "no-unused-params": { "level": "warning" },
+        "prefer-interpolation": { "level": "warning" },
+        "secure-parameter-default": { "level": "error" },
+        "no-hardcoded-location": { "level": "off" }
+      }
+    }
+  }
+}

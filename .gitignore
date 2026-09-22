@@ -1,0 +1,5 @@
+reports/*.csv
+*.pfx
+*.cer
+*.pdf
+local.settings.json

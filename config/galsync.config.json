@@ -1,0 +1,137 @@
+{
+  "$schema": "./galsync.config.schema.json",
+  "version": "1.0",
+  "runtime": {
+    "keyVaultName": "kv-galsync-usgv-01",
+    "azureEnvironment": "AzureUSGovernment",
+    "logAnalyticsWorkspaceResourceId": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-galsync-usgv-01/providers/Microsoft.OperationalInsights/workspaces/law-galsync-usgv-01",
+    "auditStorageAccount": "stgalsyncusgv01",
+    "auditContainer": "galsync-runreports"
+  },
+
+  "tenants": [
+    {
+      "tag": "GCCH",
+      "displayName": "Contoso Defense (GCC High)",
+      "cloud": "USGov",
+      "tenantId": "11111111-1111-1111-1111-111111111111",
+      "initialDomain": "contosodefense.onmicrosoft.us",
+      "primarySmtpDomain": "contosodefense.us",
+      "graphEndpoint": "https://graph.microsoft.us",
+      "loginEndpoint": "https://login.microsoftonline.us",
+      "exchangeEnvironmentName": "O365USGovGCCHigh",
+      "appId": "22222222-2222-2222-2222-222222222222",
+      "certificateName": "galsync-gcch-app",
+      "cmdletPrefix": "Gcch"
+    },
+    {
+      "tag": "COMM",
+      "displayName": "Contoso Commercial",
+      "cloud": "Global",
+      "tenantId": "33333333-3333-3333-3333-333333333333",
+      "initialDomain": "contoso.onmicrosoft.com",
+      "primarySmtpDomain": "contoso.com",
+      "graphEndpoint": "https://graph.microsoft.com",
+      "loginEndpoint": "https://login.microsoftonline.com",
+      "exchangeEnvironmentName": "O365Default",
+      "appId": "44444444-4444-4444-4444-444444444444",
+      "certificateName": "galsync-comm-app",
+      "cmdletPrefix": "Comm"
+    }
+  ],
+
+  "flows": [
+    { "source": "GCCH", "target": "COMM", "enabled": true },
+    { "source": "COMM", "target": "GCCH", "enabled": true }
+  ],
+
+  "scope": {
+    "includeGroupId": {
+      "GCCH": "55555555-5555-5555-5555-555555555555",
+      "COMM": "66666666-6666-6666-6666-666666666666"
+    },
+    "excludeGroupId": {
+      "GCCH": "77777777-7777-7777-7777-777777777777",
+      "COMM": "88888888-8888-8888-8888-888888888888"
+    },
+    "requireEnabledAccount": true,
+    "requireMailboxRecipientTypes": [ "UserMailbox" ],
+    "excludeGuests": true,
+    "excludeMailDomains": [ "onmicrosoft.com", "onmicrosoft.us" ],
+    "excludeUpnPatterns": [ "^svc[-_]", "^adm[-_]", "^admin", "\\.adm@", "^break.?glass" ],
+    "excludeIfCustomSecurityAttribute": {
+      "attributeSet": "ExportControl",
+      "attributeName": "ItarRestricted",
+      "blockOnValue": true
+    }
+  },
+
+  "attributeMap": {
+    "allowed": [
+      "displayName",
+      "givenName",
+      "surname",
+      "mail",
+      "jobTitle",
+      "department",
+      "companyName"
+    ],
+    "optional": {
+      "officeLocation": false,
+      "city": false,
+      "state": false,
+      "country": false,
+      "businessPhones": false,
+      "mobilePhone": false,
+      "manager": false
+    },
+    "neverSync": [
+      "userPrincipalName",
+      "employeeId",
+      "employeeHireDate",
+      "onPremisesSamAccountName",
+      "onPremisesImmutableId",
+      "signInActivity",
+      "extensionAttributes",
+      "photo",
+      "assignedLicenses",
+      "customSecurityAttributes"
+    ],
+    "displayNameSuffix": {
+      "GCCH": " (Contoso Defense)",
+      "COMM": " (Contoso Commercial)"
+    }
+  },
+
+  "target": {
+    "contactNamePrefix": "gs",
+    "aliasPrefix": "gs",
+    "hiddenFromAddressLists": false,
+    "provenanceAttribute": "CustomAttribute15",
+    "provenanceValue": "GALSYNC",
+    "sourceTagAttribute": "CustomAttribute14",
+    "anchorAttribute": "CustomAttribute13",
+    "hashAttribute": "CustomAttribute12",
+    "pendingDeleteAttribute": "CustomAttribute11"
+  },
+
+  "lifecycle": {
+    "softDeleteGraceDays": 30,
+    "hideOnSoftDelete": true
+  },
+
+  "safety": {
+    "maxDeletesPerRun": 50,
+    "maxDeletePercentOfTarget": 10,
+    "maxCreatesPerRun": 500,
+    "abortOnEmptySource": true,
+    "minimumSourceObjects": 1
+  },
+
+  "throttling": {
+    "batchSize": 50,
+    "delayBetweenBatchesMs": 1000,
+    "maxRetries": 5,
+    "retryBaseDelayMs": 2000
+  }
+}
