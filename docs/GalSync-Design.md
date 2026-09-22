@@ -363,7 +363,7 @@ Flow direction is **outbound from GCC High to Commercial** and outbound from Com
 
 **Phase 0 — Agreement (1 week).** Confirm the attribute list with security and export control. Agree the include-group population on both sides. Exchange tenant IDs. Record the interconnection in the SSP. Nominate an operations owner in each tenant.
 
-**Phase 1 — Platform (2 days).** Deploy `infra/main.bicep` into the Azure Government subscription. Deploy `infra/network.bicep` if the runbook will egress through the hub firewall. Confirm the Automation managed identity's Key Vault and storage role assignments.
+**Phase 1 — Platform (2 days).** Deploy `infra/main.bicep` into the Azure Government subscription with `enableSchedule = false` (the default). This creates the Automation account, runbook and module imports but no schedule, so nothing can run unattended before the pilot is signed off. Deploy `infra/network.bicep` if the runbook will egress through the hub firewall. Confirm the Automation managed identity's Key Vault and storage role assignments, and copy the `keyVaultName`, `storageAccountName` and `workspaceResourceId` deployment outputs into the `runtime` block of `config/galsync.config.json`.
 
 **Phase 2 — Identity (1 day).** Run `New-GalSyncAppRegistration.ps1` once per tenant. Record the application IDs in `config/galsync.config.json`. Create the include and exclude security groups in both tenants. Define the `ExportControl` attribute set and the `ItarRestricted` attribute in both tenants.
 
@@ -373,7 +373,7 @@ Flow direction is **outbound from GCC High to Commercial** and outbound from Com
 
 **Phase 5 — Availability and federation (2 days).** Run `Set-CrossCloudFreeBusy.ps1 -Mode AuditOnly` in both tenants and review. Configure the Cross-Tenant Access Policy path in both. Run `Set-TeamsFederation.ps1` in both, then add the cross-cloud meeting connection in each Teams admin center. Allow 24 hours, then validate free/busy lookup, Teams chat and cross-cloud meeting join in both directions.
 
-**Phase 6 — Production (1 week).** Expand the include groups to the full agreed population — watch the create ceiling and raise it deliberately for the first bulk run, then lower it again. Enable the hourly schedule. Enable the alert rules. Hand over using `docs/Operations-Runbook.md`.
+**Phase 6 — Production (1 week).** Expand the include groups to the full agreed population — watch the create ceiling and raise it deliberately for the first bulk run, then lower it again. Enable the hourly schedule by redeploying `infra/main.bicep` with `enableSchedule = true`; `scheduleStartTime` defaults to one hour after the deployment, or set a future UTC time in `main.bicepparam`. Enable the alert rules. Hand over using `docs/Operations-Runbook.md`.
 
 **Phase 7 — Legacy decommission (before 1 April 2027).** Remove any organisation relationships, availability address spaces and sharing policies used as a bridge.
 

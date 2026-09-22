@@ -31,8 +31,11 @@ param certificateAdminObjectIds array = []
 @maxValue(24)
 param syncIntervalHours int = 1
 
-@description('UTC start time for the first scheduled run (ISO 8601). Must be at least 5 minutes in the future.')
-param scheduleStartTime string
+@description('Create the recurring schedule and link it to the runbook. Leave false until the runbook content is published and the pilot is signed off (Phase 6).')
+param enableSchedule bool = false
+
+@description('UTC start time for the first scheduled run (ISO 8601). Must be at least 5 minutes in the future when enableSchedule is true.')
+param scheduleStartTime string = dateTimeAdd(utcNow(), 'PT1H')
 
 @description('Days to retain audit logs in Log Analytics.')
 @minValue(90)
@@ -171,6 +174,9 @@ var powerShell72Modules = [
   { name: 'ExchangeOnlineManagement', version: '3.4.0' }
 ]
 
+// Serial import: Microsoft.Graph.Users/Groups depend on Microsoft.Graph.Authentication,
+// and parallel imports fail intermittently when a dependency is not yet available.
+@batchSize(1)
 resource modules 'Microsoft.Automation/automationAccounts/powerShell72Modules@2023-11-01' = [for m in powerShell72Modules: {
   parent: automation
   name: m.name
@@ -195,7 +201,7 @@ resource syncRunbook 'Microsoft.Automation/automationAccounts/runbooks@2023-11-0
   }
 }
 
-resource syncSchedule 'Microsoft.Automation/automationAccounts/schedules@2023-11-01' = {
+resource syncSchedule 'Microsoft.Automation/automationAccounts/schedules@2023-11-01' = if (enableSchedule) {
   parent: automation
   name: 'galsync-every-${syncIntervalHours}h'
   properties: {
@@ -207,9 +213,9 @@ resource syncSchedule 'Microsoft.Automation/automationAccounts/schedules@2023-11
   }
 }
 
-resource scheduleLink 'Microsoft.Automation/automationAccounts/jobSchedules@2023-11-01' = {
+resource scheduleLink 'Microsoft.Automation/automationAccounts/jobSchedules@2023-11-01' = if (enableSchedule) {
   parent: automation
-  name: guid(automation.id, syncRunbook.name, syncSchedule.name)
+  name: guid(automation.id, syncRunbook.name, 'galsync-every-${syncIntervalHours}h')
   properties: {
     runbook: { name: syncRunbook.name }
     schedule: { name: syncSchedule.name }

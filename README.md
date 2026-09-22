@@ -29,7 +29,8 @@ tests/GalSync.Tests.ps1                 Pester tests — 30 tests, no tenant req
 ## Quick start
 
 ```powershell
-# 1. Platform (Azure Government)
+# 1. Platform (Azure Government). enableSchedule stays false until Phase 6;
+#    copy keyVaultName / storageAccountName / workspaceResourceId from the outputs into the config runtime block
 az deployment group create -g rg-galsync-prod -f infra/main.bicep -p infra/main.bicepparam
 
 # 2. Identity - once per tenant

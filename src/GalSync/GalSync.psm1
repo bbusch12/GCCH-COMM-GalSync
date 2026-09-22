@@ -210,7 +210,7 @@ function Connect-GalSyncExchange {
                            -ExchangeEnvironmentName $Tenant.exchangeEnvironmentName `
                            -Prefix $Tenant.cmdletPrefix `
                            -ShowBanner:$false `
-                           -CommandName 'Get-MailContact', 'New-MailContact', 'Set-MailContact', 'Remove-MailContact', 'Get-Contact', 'Set-Contact', 'Get-OrganizationConfig' | Out-Null
+                           -CommandName 'Get-MailContact', 'Get-Recipient', 'New-MailContact', 'Set-MailContact', 'Remove-MailContact', 'Get-Contact', 'Set-Contact', 'Get-OrganizationConfig' | Out-Null
 
     Write-GalSyncLog -Level Info -Message 'Connected to Exchange Online.' `
         -Data @{ tenant = $Tenant.tag; environment = $Tenant.exchangeEnvironmentName; prefix = $Tenant.cmdletPrefix }

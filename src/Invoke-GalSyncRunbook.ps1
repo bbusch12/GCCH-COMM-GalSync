@@ -31,7 +31,7 @@ param(
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
-Import-Module "$PSScriptRoot/GalSync/GalSync.psd1" -Force -ErrorAction Stop
+Import-Module GalSync -ErrorAction Stop
 
 # Managed identity in Azure Government. No secret material in the runbook.
 Connect-AzAccount -Identity -Environment $AzureEnvironment | Out-Null

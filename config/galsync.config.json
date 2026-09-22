@@ -1,11 +1,10 @@
 {
-  "$schema": "./galsync.config.schema.json",
   "version": "1.0",
   "runtime": {
-    "keyVaultName": "kv-galsync-usgv-01",
+    "keyVaultName": "REPLACE-with-deployment-output-keyVaultName",
     "azureEnvironment": "AzureUSGovernment",
-    "logAnalyticsWorkspaceResourceId": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-galsync-usgv-01/providers/Microsoft.OperationalInsights/workspaces/law-galsync-usgv-01",
-    "auditStorageAccount": "stgalsyncusgv01",
+    "logAnalyticsWorkspaceResourceId": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-galsync-prod/providers/Microsoft.OperationalInsights/workspaces/law-galsync-prod",
+    "auditStorageAccount": "REPLACE-with-deployment-output-storageAccountName",
     "auditContainer": "galsync-runreports"
   },
 

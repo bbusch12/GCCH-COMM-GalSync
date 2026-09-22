@@ -74,6 +74,17 @@ Or, from an admin workstation with the modules installed:
 3. Run in preview. Every existing contact will appear as an update, because the hash covers the attribute set — that is expected.
 4. Publish the configuration blob and let the next scheduled run apply it. Watch the create/update ceilings.
 
+### 3.7 Pause or resume the scheduled sync
+
+The hourly schedule exists only once `infra/main.bicep` has been deployed with `enableSchedule = true` (design Phase 6). Redeploying with `enableSchedule = false` does not remove or disable an existing schedule: an incremental deployment skips the resource rather than deleting it. To pause and resume, change the schedule directly:
+
+```powershell
+Set-AzAutomationSchedule -ResourceGroupName rg-galsync-prod -AutomationAccountName aa-galsync-prod `
+    -Name galsync-every-1h -IsEnabled $false    # pause; use $true to resume
+```
+
+When redeploying the template with the schedule enabled, leave `scheduleStartTime` at its default (one hour after deployment) or supply a future UTC time. A start time in the past fails the deployment.
+
 ---
 
 ## 4. Incident response
@@ -151,7 +162,7 @@ Certificates are 12-month and rotate at 9 months. Rotation is per tenant and can
 
 | Loss | Recovery |
 |---|---|
-| Automation account | Redeploy `infra/main.bicep`, re-grant the managed identity RBAC, republish the runbook content, re-import modules. Target: 4 hours. No data loss — the state lives on the contacts themselves |
+| Automation account | Redeploy `infra/main.bicep` with `enableSchedule = false`, re-grant the managed identity RBAC, republish the runbook content and re-import modules (including GalSync), then redeploy with `enableSchedule = true` — the schedule link cannot be created against an unpublished runbook. Target: 4 hours. No data loss — the state lives on the contacts themselves |
 | Key Vault | Soft delete with purge protection is enabled; recover the vault. If the certificates are unrecoverable, re-run `New-GalSyncAppRegistration.ps1` per tenant |
 | Configuration blob | Restored from source control; blob versioning is enabled |
 | Both tenants' contacts deleted | Re-run the service. It rebuilds the full contact set from the source directories. Watch the create ceiling — raise it deliberately for the rebuild |
